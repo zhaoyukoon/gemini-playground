@@ -4,6 +4,8 @@
 
 import { Buffer } from "node:buffer";
 
+const API_KEY = "AIzaSyAu76U_nusRn39kQe5nVsXVfqk58zi3c-w";
+
 export default {
   async fetch (request) {
     if (request.method === "OPTIONS") {
@@ -14,7 +16,7 @@ export default {
       return new Response(err.message, fixCors({ status: err.status ?? 500 }));
     };
     try {
-      const apiKey = "AIzaSyAu76U_nusRn39kQe5nVsXVfqk58zi3c-w";
+      const apiKey = API_KEY;
       const assert = (success) => {
         if (!success) {
           throw new HttpError("The specified HTTP method is not allowed for the requested resource", 400);

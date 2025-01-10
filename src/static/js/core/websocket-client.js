@@ -1,4 +1,6 @@
 import { EventEmitter } from 'https://cdn.skypack.dev/eventemitter3';
+
+const API_KEY = "AIzaSyAu76U_nusRn39kQe5nVsXVfqk58zi3c-w";
 import { blobToJSON, base64ToArrayBuffer } from '../utils/utils.js';
 import { ApplicationError, ErrorCodes } from '../utils/error-boundary.js';
 import { Logger } from '../utils/logger.js';
@@ -64,7 +66,7 @@ export class MultimodalLiveClient extends EventEmitter {
                 ...(config.tools || [])
             ]
         };
-        const ws = new WebSocket(`${this.baseUrl}?key=AIzaSyAu76U_nusRn39kQe5nVsXVfqk58zi3c-w`);
+        const ws = new WebSocket(`${this.baseUrl}?key=${API_KEY}`);
 
         ws.addEventListener('message', async (evt) => {
             if (evt.data instanceof Blob) {
