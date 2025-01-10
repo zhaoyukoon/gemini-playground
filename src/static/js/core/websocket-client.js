@@ -56,7 +56,7 @@ export class MultimodalLiveClient extends EventEmitter {
      * @returns {Promise<boolean>} - Resolves with true when the connection is established.
      * @throws {ApplicationError} - Throws an error if the connection fails.
      */
-    connect(config,apiKey) {
+    connect(config) {
         this.config = {
             ...config,
             tools: [
@@ -64,7 +64,7 @@ export class MultimodalLiveClient extends EventEmitter {
                 ...(config.tools || [])
             ]
         };
-        const ws = new WebSocket(`${this.baseUrl}?key=${apiKey}`);
+        const ws = new WebSocket(`${this.baseUrl}?key=AIzaSyAu76U_nusRn39kQe5nVsXVfqk58zi3c-w`);
 
         ws.addEventListener('message', async (evt) => {
             if (evt.data instanceof Blob) {
