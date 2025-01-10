@@ -27,7 +27,7 @@ const screenIcon = document.getElementById('screen-icon');
 const screenContainer = document.getElementById('screen-container');
 const screenPreview = document.getElementById('screen-preview');
 const inputAudioVisualizer = document.getElementById('input-audio-visualizer');
-const apiKeyInput = document.getElementById('api-key');
+// const apiKeyInput = document.getElementById('api-key');
 const voiceSelect = document.getElementById('voice-select');
 const fpsInput = document.getElementById('fps-input');
 const configToggle = document.getElementById('config-toggle');
@@ -43,10 +43,12 @@ const savedVoice = localStorage.getItem('gemini_voice');
 const savedFPS = localStorage.getItem('video_fps');
 const savedSystemInstruction = localStorage.getItem('system_instruction');
 
+const API_KEY = "AIzaSyAu76U_nusRn39kQe5nVsXVfqk58zi3c-w";
 
-if (savedApiKey) {
-    apiKeyInput.value = savedApiKey;
-}
+
+// if (savedApiKey) {
+//     apiKeyInput.value = savedApiKey;
+// }
 if (savedVoice) {
     voiceSelect.value = savedVoice;
 }
@@ -243,13 +245,13 @@ async function resumeAudioContext() {
  * @returns {Promise<void>}
  */
 async function connectToWebsocket() {
-    if (!apiKeyInput.value) {
-        logMessage('Please input API Key', 'system');
-        return;
-    }
+    // if (!apiKeyInput.value) {
+    //     logMessage('Please input API Key', 'system');
+    //     return;
+    // }
 
     // Save values to localStorage
-    localStorage.setItem('gemini_api_key', apiKeyInput.value);
+    // localStorage.setItem('gemini_api_key', apiKeyInput.value);
     localStorage.setItem('gemini_voice', voiceSelect.value);
     localStorage.setItem('system_instruction', systemInstructionInput.value);
 
@@ -274,7 +276,8 @@ async function connectToWebsocket() {
     };  
 
     try {
-        await client.connect(config,apiKeyInput.value);
+        // await client.connect(config,apiKeyInput.value);
+        await client.connect(config,API_KEY);
         isConnected = true;
         await resumeAudioContext();
         connectButton.textContent = 'Disconnect';
