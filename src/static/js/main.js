@@ -344,12 +344,14 @@ function disconnectFromWebsocket() {
 /**
  * Handles sending a text message.
  */
-function handleSendMessage() {
+async function handleSendMessage() {
+    await ensureConnection();
     const message = messageInput.value.trim();
     if (message) {
         logMessage(message, 'user');
         client.send({ text: message });
         messageInput.value = '';
+        resetInactivityTimeout();
     }
 }
 
