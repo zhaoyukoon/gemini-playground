@@ -173,8 +173,11 @@ button span {
     font-weight: bold;
 }
 
-#connect-button.connected {
+/* #connect-button.connected {
     background-color: #ea4335;
+} */
+#mic-button.active {
+    background: #ea4335;
 }
 
 #video-container {

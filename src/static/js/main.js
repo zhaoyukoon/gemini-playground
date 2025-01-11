@@ -18,7 +18,7 @@ const sendButton = document.getElementById('send-button');
 const micButton = document.getElementById('mic-button');
 const micIcon = document.getElementById('mic-icon');
 const audioVisualizer = document.getElementById('audio-visualizer');
-const connectButton = document.getElementById('connect-button');
+// const connectButton = document.getElementById('connect-button');
 const cameraButton = document.getElementById('camera-button');
 const cameraIcon = document.getElementById('camera-icon');
 const stopVideoButton = document.getElementById('stop-video');
@@ -176,6 +176,7 @@ async function ensureAudioInitialized() {
  * @returns {Promise<void>}
  */
 async function handleMicToggle() {
+    await ensureConnection();
     if (!isRecording) {
         try {
             await ensureAudioInitialized();
@@ -202,6 +203,7 @@ async function handleMicToggle() {
                 inputAnalyser.getByteFrequencyData(inputDataArray);
                 const inputVolume = Math.max(...inputDataArray) / 255;
                 updateAudioVisualizer(inputVolume, true);
+                resetInactivityTimeout();
             });
 
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -212,10 +214,12 @@ async function handleMicToggle() {
             isRecording = true;
             Logger.info('Microphone started');
             logMessage('Microphone started', 'system');
+            micButton.classList.add('active');
             updateMicIcon();
         } catch (error) {
             Logger.error('Microphone error:', error);
             logMessage(`Error: ${error.message}`, 'system');
+            micButton.classList.remove('active');
             isRecording = false;
             updateMicIcon();
         }
@@ -280,26 +284,27 @@ async function connectToWebsocket() {
         await client.connect(config,API_KEY);
         isConnected = true;
         await resumeAudioContext();
-        connectButton.textContent = 'Disconnect';
-        connectButton.classList.add('connected');
-        messageInput.disabled = false;
-        sendButton.disabled = false;
-        micButton.disabled = false;
-        cameraButton.disabled = false;
-        screenButton.disabled = false;
+        // connectButton.textContent = 'Disconnect';
+        // connectButton.classList.add('connected');
+        // messageInput.disabled = false;
+        // sendButton.disabled = false;
+        // micButton.disabled = false;
+        // cameraButton.disabled = false;
+        // screenButton.disabled = false;
         logMessage('Connected to Gemini 2.0 Flash Multimodal Live API', 'system');
+        resetInactivityTimeout(); 
     } catch (error) {
         const errorMessage = error.message || 'Unknown error';
         Logger.error('Connection error:', error);
         logMessage(`Connection error: ${errorMessage}`, 'system');
         isConnected = false;
-        connectButton.textContent = 'Connect';
-        connectButton.classList.remove('connected');
-        messageInput.disabled = true;
-        sendButton.disabled = true;
-        micButton.disabled = true;
-        cameraButton.disabled = true;
-        screenButton.disabled = true;
+        // connectButton.textContent = 'Connect';
+        // connectButton.classList.remove('connected');
+        // messageInput.disabled = true;
+        // sendButton.disabled = true;
+        // micButton.disabled = true;
+        // cameraButton.disabled = true;
+        // screenButton.disabled = true;
     }
 }
 
@@ -318,13 +323,13 @@ function disconnectFromWebsocket() {
         isRecording = false;
         updateMicIcon();
     }
-    connectButton.textContent = 'Connect';
-    connectButton.classList.remove('connected');
-    messageInput.disabled = true;
-    sendButton.disabled = true;
-    micButton.disabled = true;
-    cameraButton.disabled = true;
-    screenButton.disabled = true;
+    // connectButton.textContent = 'Connect';
+    // connectButton.classList.remove('connected');
+    // messageInput.disabled = true;
+    // sendButton.disabled = true;
+    // micButton.disabled = true;
+    // cameraButton.disabled = true;
+    // screenButton.disabled = true;
     logMessage('Disconnected from server', 'system');
     
     if (videoManager) {
@@ -429,18 +434,35 @@ messageInput.addEventListener('keypress', (event) => {
 
 micButton.addEventListener('click', handleMicToggle);
 
-connectButton.addEventListener('click', () => {
-    if (isConnected) {
+// connectButton.addEventListener('click', () => {
+//     if (isConnected) {
+//         disconnectFromWebsocket();
+//     } else {
+//         connectToWebsocket();
+//     }
+// });
+
+let inactivityTimeout;
+
+function resetInactivityTimeout() {
+    clearTimeout(inactivityTimeout);
+    inactivityTimeout = setTimeout(() => {
         disconnectFromWebsocket();
-    } else {
-        connectToWebsocket();
+    }, 600000); // 10 minutes
+}
+async function ensureConnection() {
+    if (!isConnected) {
+        await connectToWebsocket();
     }
+}
+window.addEventListener('beforeunload', () => {
+    disconnectFromWebsocket();
 });
 
-messageInput.disabled = true;
-sendButton.disabled = true;
-micButton.disabled = true;
-connectButton.textContent = 'Connect';
+// messageInput.disabled = true;
+// sendButton.disabled = true;
+// micButton.disabled = true;
+// connectButton.textContent = 'Connect';
 
 /**
  * Handles the video toggle. Starts or stops video streaming.
@@ -451,6 +473,7 @@ async function handleVideoToggle() {
     
     localStorage.setItem('video_fps', fpsInput.value);
 
+    await ensureConnection();
     if (!isVideoActive) {
         try {
             Logger.info('Attempting to start video');
@@ -462,6 +485,7 @@ async function handleVideoToggle() {
                 if (isConnected) {
                     client.sendRealtimeInput([frameData]);
                 }
+                resetInactivityTimeout();
             });
 
             isVideoActive = true;
@@ -501,13 +525,14 @@ function stopVideo() {
 cameraButton.addEventListener('click', handleVideoToggle);
 stopVideoButton.addEventListener('click', stopVideo);
 
-cameraButton.disabled = true;
+// cameraButton.disabled = true;
 
 /**
  * Handles the screen share toggle. Starts or stops screen sharing.
  * @returns {Promise<void>}
  */
 async function handleScreenShare() {
+    await ensureConnection();
     if (!isScreenSharing) {
         try {
             screenContainer.style.display = 'block';
@@ -520,6 +545,7 @@ async function handleScreenShare() {
                         data: frameData
                     }]);
                 }
+                resetInactivityTimeout();
             });
 
             isScreenSharing = true;
@@ -557,5 +583,5 @@ function stopScreenSharing() {
 }
 
 screenButton.addEventListener('click', handleScreenShare);
-screenButton.disabled = true;
+// screenButton.disabled = true;
   
